@@ -10,14 +10,14 @@ def index():
 
 
 
-# @app.route("/jsonEndpoint")
-# def json_mess():
-#     return jsonify({"message":"Hello, world"}), 200
-
 @app.route("/jsonEndpoint")
 def json_mess():
-    curr_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return jsonify({"message":curr_time}), 200
+    return jsonify({"message":"Hello, world"}), 200
+
+# @app.route("/jsonEndpoint")
+# def json_mess():
+#     curr_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     return jsonify({"message":curr_time}), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=3000)
