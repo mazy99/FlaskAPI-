@@ -28,7 +28,7 @@ def log_status(message):
 
 @app.route('/')
 def upload_form():
-    return render_template('index.html')
+    return render_template('index2.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
