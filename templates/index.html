@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>API demo</title>
+        <style>
+            body{
+                margin: 0;
+            }
+
+            #root{
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #get-response-btn{
+                margin-top: 25px;
+                padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root">
+            <h1>Демонстрация получения ответа от сервера</h1>
+            <span>Сообщение от сервера: нажмите на кнопку...</span>
+            <span>Статус ответа: нажмите на кнопку...</span>
+            <button id="get-response-btn">Получить сообщение от сервера</button>
+        </div>
+        <script>
+            const getResponseBtn = document.getElementById('get-response-btn');
+            const responseMsg = document.getElementsByTagName('span')[0];
+            const statusMsg = document.getElementsByTagName('span')[1];
+            getResponseBtn.addEventListener('click', () => {
+                //выполнение запроса на json endpoint
+                const request = fetch('/jsonEndpoint')
+                
+                //парсинг ответа
+                request.then(response => {
+                        statusMsg.textContent = `Статус ответа: ${response.status}`;
+                        return response.json();
+                    })
+                    .then(data => {
+                        responseMsg.textContent = `Сообщение от сервера: ${data.message}`;
+                    })
+                    .catch(error => {
+                        responseMsg.textContent = 'Ошибка: ' + error;
+                    });
+            });
+        </script>
+    </body>
+</html>
