@@ -8,3 +8,13 @@
 [2024-10-26 13:55:47] - Error: No selected file
 [2024-10-26 14:38:48] - Success: File empty.png uploaded successfully.
 [2024-10-26 21:58:21] - Success: File empty.png uploaded successfully.
+[2024-10-27 17:25:30] - Error: No file uploaded
+[2024-10-27 17:26:25] - Success: File empty.png uploaded successfully.
+[2024-10-27 17:26:34] - Error: No file uploaded
+[2024-10-27 17:32:13] - Success: File a.png uploaded successfully.
+[2024-10-27 19:49:28] - Error: Invalid image data or unsupported file extension
+[2024-10-27 19:49:31] - Error: Invalid image data or unsupported file extension
+[2024-10-27 19:49:34] - Success: File asa.png uploaded successfully.
+[2024-10-27 19:49:37] - Success: File uploaded_image.png uploaded successfully.
+[2024-10-27 19:49:44] - Success: File uploaded_image.png uploaded successfully.
+[2024-10-27 19:58:56] - Success: File cat.jpg uploaded successfully.
