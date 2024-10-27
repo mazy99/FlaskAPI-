@@ -1,26 +1,18 @@
 from flask import Flask, render_template, request, jsonify
 from PIL import Image
 import os
-from werkzeug.utils import secure_filename
 import base64
+from io import BytesIO
 from datetime import datetime
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'gallery'
-app.config['MAX_CONTENT_LENGTH'] = 2**10 * 2**10
+app.config['MAX_CONTENT_LENGTH'] = 1024*1024
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def is_img(file_path):
-    try:
-        with Image.open(file_path) as img:
-            img.verify()
-        return True
-    except (IOError, SyntaxError):
-        return False
+def allowed_file(extension):
+    return extension in ALLOWED_EXTENSIONS
 
 def log_status(message):
     with open('logs.txt', 'a') as log_file:
@@ -30,57 +22,49 @@ def log_status(message):
 def upload_form():
     return render_template('index2.html')
 
-@app.route('/upload', methods=['POST'])
+@app.route('/image', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        log_status("Error: No file uploaded")
-        return jsonify({"error": "No file"}), 400
-    
-    file = request.files['file']
-    title = request.form.get('title')
-    description = request.form.get('description')
-    tags = request.form.get('tags')
+    data = request.get_json()  
+    if not data:
+        log_status("Error: No data received")
+        return jsonify({"error": "No data received"}), 400
 
 
-    if file.filename == '':
-        log_status("Error: No selected file")
-        return jsonify({"error": "No selected file"}), 400
-    
+    img_base64 = data.get('base64')
+    title = data.get('title')
+    description = data.get('description')
+    tags = data.get('tags')
+    extension = data.get('extension')
+    file_size = data.get('size')
 
-    if file.content_length > 1 * 1024 * 1024: 
-        log_status("Error: File size exceeds 1 MB")
-        return jsonify({"error": "File size exceeds 1 MB"}), 400
+    if not img_base64 or not allowed_file(extension):
+        log_status("Error: Invalid image data or unsupported file extension")
+        return jsonify({"error": "Invalid image data or unsupported file extension"}), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+    try:
+        
+        img_data = base64.b64decode(img_base64.split(",")[1])  
+        img = Image.open(BytesIO(img_data))
+
+        filename = f"{title or 'uploaded_image'}.{extension}"
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        img.save(file_path)
 
-        if not is_img(file_path):
-            os.remove(file_path)
-            log_status("Error: Uploaded file is not a valid image")
-            return jsonify({"error": "Uploaded file is not a valid image"}), 400
-
-        file_size = os.path.getsize(file_path) / 1024
-
-        with open(file_path, "rb") as image_file:
-            base64_str = base64.b64encode(image_file.read()).decode('utf-8')
-
+        
+        log_status(f"Success: File {filename} uploaded successfully.")
         response = {
-            "file extension": filename.rsplit('.', 1)[1].lower(),
-            "size": round(file_size, 2),
+            "file extension": extension,
+            "size": file_size,
             "description": description,
             "title": title,
             "tags": tags,
-            "base64": base64_str
+            "message": "Файл успешно загружен!"
         }
-
-        log_status(f"Success: File {filename} uploaded successfully.")
         return jsonify(response), 200
 
-    else:
-        log_status("Error: File type not allowed")
-        return jsonify({"error": "File type not allowed"}), 400
+    except Exception as e:
+        log_status(f"Error during file processing: {str(e)}")
+        return jsonify({"error": "Error processing file"}), 500
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
